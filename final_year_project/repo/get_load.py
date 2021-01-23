@@ -25,7 +25,7 @@ def set_wrist_pose():
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 2 )
-	listener()
+	
 
 def listener():
 	rospy.Subscriber( "/rx150/joint_states", JointState, check_load )
@@ -38,6 +38,7 @@ def check_load( joint_states ):
 	load = joint_states.effort[3] 
 	print("Load: " + str(load))
 	print("State: " + state)
+
 	if state == "Start":
 		empty_cup_load = empty_cup( load, empty_cup_load )
 	elif state == "Waiting":
@@ -88,5 +89,9 @@ def start_pouring():
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS("rx150", "arm", "gripper")
 	set_wrist_pose()
+	if state == "Waiting":
+		listener()
+		rospy.spin()
+		filling_cup( load, empty_cup_load )
+	else if state == "Filling":
 
-	rospy.spin()
