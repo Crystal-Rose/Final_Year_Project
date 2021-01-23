@@ -40,16 +40,16 @@ def check_load( joint_states ):
 	print("State: " + state)
 
 	if state == "Start":
-		empty_cup_load = empty_cup( load, empty_cup_load )
+		empty_cup_load = empty_cup( load, empty_cup_load )	
 	elif state == "Waiting":
 		moment = filling_cup( load, empty_cup_load )
-		rospy.sleep(2)
 	elif state == "Filling":
 		full_cup( load, moment )
 	elif state == "Ready":
 		start_pouring()
-	else:
-		return
+	return
+
+def stabilise_load_timer():
 	
 
 def empty_cup( load, empty_cup_load ):
@@ -89,9 +89,10 @@ def start_pouring():
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS("rx150", "arm", "gripper")
 	set_wrist_pose()
-	if state == "Waiting":
-		listener()
+	listener()
+	while True:
+		
 		rospy.spin()
-		filling_cup( load, empty_cup_load )
-	else if state == "Filling":
+
+
 
