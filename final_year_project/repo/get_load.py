@@ -6,22 +6,6 @@ from std_msgs.msg import Bool
 import rospy
 import time 
 
-load_value_pub = rospy.Publisher( 'load_topic', Bool, queue_size = 0 )
-
-global cup_has_water
-global first_load_check
-global empty_cup_load
-global state
-global moment
-global jointLoad
-
-jointLoad = 0
-moment = 0
-state = "Start"
-empty_cup_load = 0
-first_load_check = True
-cup_has_water = False
-
 class State_machine:
 
 	def __init__(self):
@@ -47,7 +31,6 @@ class State_machine:
 		elapsed = time.time() - self.start_time
 		print( "Time elapsed: " + str(elapsed) )
 		return elapsed
-		
 
 def set_wrist_pose():
 	print( "Moving arm into position..." )
@@ -55,19 +38,16 @@ def set_wrist_pose():
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
 	
-
 def listener():
 	rospy.Subscriber( "/rx150/joint_states", JointState, check_load )
 
 def check_load( joint_states ):
 	global jointLoad
-	
 	jointLoad = joint_states.effort[3] 
-	#print("Load: " + str(jointLoad))
 
 def process_state( State ):
-	print( "Process state load: " + str(State.load) )
-	print( "State: " + State.state )
+	print( "Load: " + str(State.load) + "	State: " + State.state)
+	#print( "State: " + State.state )
 
 	if State.state == "Start":
 		State = empty_cup( State )	
@@ -78,6 +58,7 @@ def process_state( State ):
 	elif State.state == "Ready":
 		start_pouring()
 		State.state = "Finished"
+		bot.arm.go_to_sleep_pose()
 	return State
 
 def empty_cup( robot_arm ):
@@ -102,7 +83,7 @@ def cup_being_filled( robot_arm ):
 			robot_arm.stop_timer()
 	else:
 		if robot_arm.timer_running:
-			if robot_arm.time_elapsed() > 5:
+			if robot_arm.time_elapsed() > 20:
 				robot_arm.stop_timer()
 				robot_arm.state = "Ready"
 		else:
@@ -113,13 +94,14 @@ def cup_being_filled( robot_arm ):
 def start_pouring():
 	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.57]
 	bot.arm.set_joint_positions( pouring_joint_positions )	
-	rospy.sleep( 5 )
 	print( "Pouring completed" )
-	bot.arm.go_to_sleep_pose()
-
+	rospy.sleep( 4 )
+	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
+	bot.arm.set_joint_positions( neutral_joint_position )
+	rospy.sleep( 1 )
 
 if __name__=='__main__':
-	bot = InterbotixManipulatorXS("rx150", "arm", "gripper")
+	bot = InterbotixManipulatorXS( "rx150", "arm", "gripper" )
 	set_wrist_pose()
 	listener()
 	robot_arm = State_machine()

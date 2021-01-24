@@ -6,9 +6,6 @@ from std_msgs.msg import Bool
 import rospy
 import time 
 
-load_value_pub = rospy.Publisher( 'load_topic', Bool, queue_size = 0 )
-
-
 class State_machine:
 
 	def __init__(self):
@@ -48,13 +45,10 @@ def listener():
 
 def check_load( joint_states ):
 	global jointLoad
-	
 	jointLoad = joint_states.effort[3] 
-	#print("Load: " + str(jointLoad))
 
 def process_state( State ):
-	print( "Process state load: " + str(State.load) )
-	print( "State: " + State.state )
+	print( "Load: " + str(State.load) + "	State: " + State.state)
 
 	if State.state == "Start":
 		State = empty_cup( State )	
