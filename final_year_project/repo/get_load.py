@@ -47,7 +47,6 @@ def check_load( joint_states ):
 
 def process_state( State ):
 	print( "Load: " + str(State.load) + "	State: " + State.state)
-	#print( "State: " + State.state )
 
 	if State.state == "Start":
 		State = empty_cup( State )	
