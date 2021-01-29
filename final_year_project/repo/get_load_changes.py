@@ -49,7 +49,7 @@ def process_state( State ):
 	print( "Load: " + str(State.load) + "	State: " + State.state)
 
 	if State.state == "Start":
-		State = empty_cup( State )	
+		State = fix_load( State )	
 	elif State.state == "Waiting":
 		State = is_filling_cup( State )
 	elif State.state == "Filling":
@@ -60,12 +60,13 @@ def process_state( State ):
 		bot.arm.go_to_sleep_pose()
 	return State
 
-def empty_cup( robot_arm ):
+def fix_load( robot_arm ):
 	if robot_arm.empty_cup_load == 0:
 		robot_arm.empty_cup_load = robot_arm.load
-	else:
-		robot_arm.empty_cup_load = robot_arm.load
-		robot_arm.state = "Waiting"
+		if robot_arm.empty_cup_load <= 106 and robot_arm.empty_cup_load 
+	#else:
+	#	robot_arm.empty_cup_load = robot_arm.load
+	#	robot_arm.state = "Waiting"
 	return robot_arm
 	
 def is_filling_cup( robot_arm ):
@@ -98,6 +99,18 @@ def start_pouring():
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
+
+def determine_liquid_amount( end_load, change ):
+	if ( end_load <= -161.4 and end_load >= -215.2 ) and ( change <= -13.45 and change >= -40.35 ):
+		amount = 50
+	if ( end_load <= -234.03 and end_load >= -250.17 ) and ( change <= -43.04 and change >= -94.15 ):
+		amount = 100
+	if ( end_load <= -263.62 and end_load >= -277.07 ) and ( change <=-61.87 and change >= -123.74 ):
+		amount = 150
+	if ( end_load <= -293.21 and end_load >= -309.35 ) and ( change <= -72.63 and change >= -169.47 ):
+		amount = 200
+	if (  end_load <= -328.18 and end_load >= -357.77 ) and ( change <= -104.91 and change >= -215.2 ):
+		amount = 250
 
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS( "rx150", "arm", "gripper" )
