@@ -15,6 +15,7 @@ class State_machine:
 		self.moment = 0
 		self.start_time = 0
 		self.timer_running = False
+		self.amount = 0
 	
 	def start_timer(self):
 		self.start_time = time.time()
@@ -61,10 +62,11 @@ def process_state( State ):
 	return State
 
 def check_initial_load( robot_arm ):
-	if not(robot_arm.load <= -115 and robot_arm.load >= -134.5):
+	if not(robot_arm.load <= -115 and robot_arm.load >= -143):
 		print( "Load not initialised correctly" )
 		reset_load = [0, -1.57, 0, -0.531, 0]
 		bot.arm.set_joint_positions( reset_load )
+		rospy.sleep( 1 )
 		neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 		bot.arm.set_joint_positions( neutral_joint_position )
 	else:
@@ -88,6 +90,7 @@ def cup_being_filled( robot_arm ):
 		if robot_arm.timer_running:
 			if robot_arm.time_elapsed() > 5:
 				robot_arm.stop_timer()
+				determine_liquid_amount( robot_arm )
 				robot_arm.state = "Ready"
 		else:
 			robot_arm.start_timer()	
@@ -95,25 +98,35 @@ def cup_being_filled( robot_arm ):
 	return robot_arm
 
 def start_pouring():
-	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.57]
-	bot.arm.set_joint_positions( pouring_joint_positions )	
+	pouring_joint_positions1 = [0, 0, 0.506, -0.531, -1.67]
+	bot.arm.set_joint_positions( pouring_joint_positions1 )
+	rospy.sleep( 2 )
+	pouring_joint_positions2 = [0.13, -0.08, 0.45, -0.78, -2.1]
+	bot.arm.set_joint_positions( pouring_joint_positions2 )
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
 
-def determine_liquid_amount( end_load, change ):
+def determine_liquid_amount( robot_arm ):
+	end_load = robot_arm.empty_cup_load
+	change = robot_arm.load - end_load
+	
 	if ( end_load <= -161.4 and end_load >= -215.2 ) and ( change <= -13.45 and change >= -40.35 ):
-		amount = 50
+		robot_arm.amount = 50
 	if ( end_load <= -234.03 and end_load >= -250.17 ) and ( change <= -43.04 and change >= -94.15 ):
-		amount = 100
+		robot_arm.amount = 100
 	if ( end_load <= -263.62 and end_load >= -277.07 ) and ( change <=-61.87 and change >= -123.74 ):
-		amount = 150
+		robot_arm.amount = 150
 	if ( end_load <= -293.21 and end_load >= -309.35 ) and ( change <= -72.63 and change >= -169.47 ):
-		amount = 200
+		robot_arm.amount = 200
 	if (  end_load <= -328.18 and end_load >= -357.77 ) and ( change <= -104.91 and change >= -215.2 ):
-		amount = 250
+		robot_arm.amount = 250
+	else:
+		robot_arm.amount = -1
+		
+	print(robot_arm.amount)
 
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS( "rx150", "arm", "gripper" )

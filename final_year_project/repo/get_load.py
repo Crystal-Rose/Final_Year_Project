@@ -96,11 +96,12 @@ def cup_being_filled( robot_arm ):
 	return robot_arm
 
 def start_pouring():
-	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.57]
+	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.67]
 	bot.arm.set_joint_positions( pouring_joint_positions )	
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
+	#in degrees = [180, 180, 210, 150, 89]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
 
