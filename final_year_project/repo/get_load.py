@@ -64,7 +64,7 @@ def process_state( State ):
 def check_initial_load( robot_arm ):
 	reset_load = [0, -1.57, 0.506, -0.531, 0]
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
-	if not(robot_arm.load <= -115 and robot_arm.load >= -134.5):
+	if not(robot_arm.load <= -121 and robot_arm.load >= -226):
 		print( "Load not initialised correctly" )
 		bot.arm.set_joint_positions( reset_load )
 		rospy.sleep( 1 )
