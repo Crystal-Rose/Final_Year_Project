@@ -56,13 +56,13 @@ def process_state( State ):
 	elif State.state == "Filling":
 		State = cup_being_filled( State )
 	elif State.state == "Ready":
-		start_pouring()
+		start_pouring( State )
 		State.state = "Finished"
 		bot.arm.go_to_sleep_pose()
 	return State
 
 def check_initial_load( robot_arm ):
-	if not(robot_arm.load <= -115 and robot_arm.load >= -143):
+	if not(robot_arm.load <= -121 and robot_arm.load >= -226):
 		print( "Load not initialised correctly" )
 		reset_load = [0, -1.57, 0, -0.531, 0]
 		bot.arm.set_joint_positions( reset_load )
@@ -97,17 +97,41 @@ def cup_being_filled( robot_arm ):
 		
 	return robot_arm
 
-def start_pouring():
-	pouring_joint_positions1 = [0, 0, 0.506, -0.531, -1.67]
-	bot.arm.set_joint_positions( pouring_joint_positions1 )
-	rospy.sleep( 1 )
-	pouring_joint_positions2 = [0.13, -0.08, 0.45, -0.78, -2.1]
-	bot.arm.set_joint_positions( pouring_joint_positions2 )
+def start_pouring( robot_arm ):
+	volume = robot_arm.amount
+	if volume == 50 or volume == 100 or volume == 150:
+		standard_pour()
+	elif volume == 200 or volume == 250:
+		careful_pour()
+	else:
+		print( "Unable to identify volume, standard pour will occur." )
+		standard_pour()
+
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
+
+def standard_pour():
+	standard_pour_joint_positions1 = [0, 0, 0.506, -0.531, -1.67]
+	bot.arm.set_joint_positions( standard_pour_joint_positions1 )
+	rospy.sleep( 1 )
+	empty_the_cup_joint_positions = [0.13, -0.08, 0.45, -0.78, -2.2]
+	bot.arm.set_joint_positions( empty_the_cup_joint_positions )
+
+def careful_pour():
+	pouring_joint_positions1 = [0, 0, 0.523, -0.61, -0.69]#40
+	bot.arm.set_joint_positions( pouring_joint_positions1 )
+	rospy.sleep( 0.5 )
+	pouring_joint_positions2 = [0, 0, 0.523, -0.61, -1.047]#60
+	bot.arm.set_joint_positions( pouring_joint_positions2 )
+	rospy.sleep( 10 )
+	pouring_joint_positions3 = [0, 0, 0.523, -0.61, -1.67]#95
+	bot.arm.set_joint_positions( pouring_joint_positions3 )
+	rospy.sleep( 10 )
+	empty_the_cup_joint_positions = [0.15, -0.08, 0.45, -0.78, -2.35]
+	bot.arm.set_joint_positions( empty_the_cup_joint_positions )
 
 def determine_liquid_amount( robot_arm ):
 	end_load = robot_arm.load
@@ -141,6 +165,3 @@ if __name__=='__main__':
 		rospy.sleep( 0.05 )
 		robot_arm.load = jointLoad
 		robot_arm = process_state( robot_arm )
-
-
-

@@ -15,6 +15,7 @@ class State_machine:
 		self.moment = 0
 		self.start_time = 0
 		self.timer_running = False
+		self.amount = 0
 	
 	def start_timer(self):
 		self.start_time = time.time()
@@ -96,16 +97,19 @@ def cup_being_filled( robot_arm ):
 		
 	return robot_arm
 
-def start_pouring():
-	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.67]
-	bot.arm.set_joint_positions( pouring_joint_positions )
-	rospy.sleep( 1 )
-	pouring_joint_positions2 = [0.13, -0.08, 0.45, -0.78, -2.1]
-	bot.arm.set_joint_positions( pouring_joint_positions2 )	
+def start_pouring( robot_arm ):
+	volume = robot_arm.amount
+	if volume == 50 or volume == 100 or volume == 150:
+		standard_pour()
+	elif volume == 200 or volume == 250:
+		careful_pour()
+	else:
+		print( "Unable to identify volume, standard pour will occur." )
+		standard_pour()
+
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
-	#in degrees = [180, 180, 210, 150, 89]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
 
@@ -131,6 +135,26 @@ def determine_liquid_amount( robot_arm ):
 		
 	print(robot_arm.amount)
 
+def standard_pour():
+	standard_pour_joint_positions1 = [0, 0, 0.506, -0.531, -1.67]
+	bot.arm.set_joint_positions( standard_pour_joint_positions1 )
+	rospy.sleep( 1 )
+	empty_the_cup_joint_positions = [0.13, -0.08, 0.45, -0.78, -2.2]
+	bot.arm.set_joint_positions( empty_the_cup_joint_positions )
+
+def careful_pour():
+	pouring_joint_positions1 = [0, 0, 0.523, -0.61, -0.69]#40
+	bot.arm.set_joint_positions( pouring_joint_positions1 )
+	rospy.sleep( 0.5 )
+	pouring_joint_positions2 = [0, 0, 0.523, -0.61, -1.047]#60
+	bot.arm.set_joint_positions( pouring_joint_positions2 )
+	rospy.sleep( 10 )
+	pouring_joint_positions3 = [0, 0, 0.523, -0.61, -1.67]#95
+	bot.arm.set_joint_positions( pouring_joint_positions3 )
+	rospy.sleep( 10 )
+	empty_the_cup_joint_positions = [0.15, -0.08, 0.45, -0.78, -2.35]
+	bot.arm.set_joint_positions( empty_the_cup_joint_positions )
+
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS( "rx150", "arm", "gripper" )
 	set_wrist_pose()
@@ -141,6 +165,3 @@ if __name__=='__main__':
 		rospy.sleep( 0.05 )
 		robot_arm.load = jointLoad
 		robot_arm = process_state( robot_arm )
-
-
-
