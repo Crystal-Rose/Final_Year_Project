@@ -100,7 +100,7 @@ def cup_being_filled( robot_arm ):
 def start_pouring():
 	pouring_joint_positions1 = [0, 0, 0.506, -0.531, -1.67]
 	bot.arm.set_joint_positions( pouring_joint_positions1 )
-	rospy.sleep( 2 )
+	rospy.sleep( 1 )
 	pouring_joint_positions2 = [0.13, -0.08, 0.45, -0.78, -2.1]
 	bot.arm.set_joint_positions( pouring_joint_positions2 )
 	print( "Pouring completed" )
@@ -110,18 +110,21 @@ def start_pouring():
 	rospy.sleep( 1 )
 
 def determine_liquid_amount( robot_arm ):
-	end_load = robot_arm.empty_cup_load
-	change = robot_arm.load - end_load
-	
-	if ( end_load <= -161.4 and end_load >= -215.2 ) and ( change <= -13.45 and change >= -40.35 ):
+	end_load = robot_arm.load
+	change = robot_arm.load - robot_arm.empty_cup_load
+	print( "Empty cup load: " + str( robot_arm.empty_cup_load ) )
+	print( "End load: " + str( end_load ) )
+	print( "Change: " + str( change ) )	
+
+	if ( end_load <= -134.5 and end_load >= -263.62 ) and ( change <= -13.45 and change >= -37.66 ):
 		robot_arm.amount = 50
-	if ( end_load <= -234.03 and end_load >= -250.17 ) and ( change <= -43.04 and change >= -94.15 ):
+	elif ( end_load <= -153.33 and end_load >= -317.42 ) and ( change <= -32.28 and change >= -91.46 ):
 		robot_arm.amount = 100
-	if ( end_load <= -263.62 and end_load >= -277.07 ) and ( change <=-61.87 and change >= -123.74 ):
+	elif ( end_load <= -182.92 and end_load >= -347.01 ) and ( change <=-61.87 and change >= -121.05 ):
 		robot_arm.amount = 150
-	if ( end_load <= -293.21 and end_load >= -309.35 ) and ( change <= -72.63 and change >= -169.47 ):
+	elif ( end_load <= -196.38 and end_load >= -392.74 ) and ( change <= -76 and change >= -166.78 ):
 		robot_arm.amount = 200
-	if (  end_load <= -328.18 and end_load >= -357.77 ) and ( change <= -104.91 and change >= -215.2 ):
+	elif (  end_load <= -228.65 and end_load >= -438.47 ) and ( change <= -107.6 and change >= -212.51 ):
 		robot_arm.amount = 250
 	else:
 		robot_arm.amount = -1

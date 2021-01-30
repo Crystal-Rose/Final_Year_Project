@@ -89,6 +89,7 @@ def cup_being_filled( robot_arm ):
 		if robot_arm.timer_running:
 			if robot_arm.time_elapsed() > 5:
 				robot_arm.stop_timer()
+				determine_liquid_amount( robot_arm )
 				robot_arm.state = "Ready"
 		else:
 			robot_arm.start_timer()	
@@ -97,13 +98,38 @@ def cup_being_filled( robot_arm ):
 
 def start_pouring():
 	pouring_joint_positions = [0, 0, 0.506, -0.531, -1.67]
-	bot.arm.set_joint_positions( pouring_joint_positions )	
+	bot.arm.set_joint_positions( pouring_joint_positions )
+	rospy.sleep( 1 )
+	pouring_joint_positions2 = [0.13, -0.08, 0.45, -0.78, -2.1]
+	bot.arm.set_joint_positions( pouring_joint_positions2 )	
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
 	neutral_joint_position = [0, 0, 0.506, -0.531, 0]
 	#in degrees = [180, 180, 210, 150, 89]
 	bot.arm.set_joint_positions( neutral_joint_position )
 	rospy.sleep( 1 )
+
+def determine_liquid_amount( robot_arm ):
+	end_load = robot_arm.load
+	change = robot_arm.load - robot_arm.empty_cup_load
+	print( "Empty cup load: " + str( robot_arm.empty_cup_load ) )
+	print( "End load: " + str( end_load ) )
+	print( "Change: " + str( change ) )	
+
+	if ( end_load <= -134.5 and end_load >= -263.62 ) and ( change <= -13.45 and change >= -37.66 ):
+		robot_arm.amount = 50
+	elif ( end_load <= -153.33 and end_load >= -317.42 ) and ( change <= -32.28 and change >= -91.46 ):
+		robot_arm.amount = 100
+	elif ( end_load <= -182.92 and end_load >= -347.01 ) and ( change <=-61.87 and change >= -121.05 ):
+		robot_arm.amount = 150
+	elif ( end_load <= -196.38 and end_load >= -392.74 ) and ( change <= -76 and change >= -166.78 ):
+		robot_arm.amount = 200
+	elif (  end_load <= -228.65 and end_load >= -438.47 ) and ( change <= -107.6 and change >= -212.51 ):
+		robot_arm.amount = 250
+	else:
+		robot_arm.amount = -1
+		
+	print(robot_arm.amount)
 
 if __name__=='__main__':
 	bot = InterbotixManipulatorXS( "rx150", "arm", "gripper" )
