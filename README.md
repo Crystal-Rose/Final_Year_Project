@@ -1,6 +1,7 @@
 # Final_Year_Project
 
 This repo must be used with the interbotix repository: https://github.com/Interbotix/interbotix_ros_manipulators/tree/main/interbotix_ros_xsarms
+The yaml files provided in this repository must be updated in the Interbotix_ws to work.
 
 This repo uses the reactorX 150 arm from Trossen Robotics, ensure it is connected before executing files.
 
