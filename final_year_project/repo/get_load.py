@@ -56,7 +56,7 @@ def process_state( State ):
 	elif State.state == "Filling":
 		State = cup_being_filled( State )
 	elif State.state == "Ready":
-		start_pouring()
+		start_pouring( State )
 		State.state = "Finished"
 		bot.arm.go_to_sleep_pose()
 	return State
@@ -104,8 +104,8 @@ def start_pouring( robot_arm ):
 	elif volume == 200 or volume == 250:
 		careful_pour()
 	else:
-		print( "Unable to identify volume, standard pour will occur." )
-		standard_pour()
+		print( "Unable to identify volume, careful pour will occur." )
+		careful_pour()
 
 	print( "Pouring completed" )
 	rospy.sleep( 4 )
@@ -148,10 +148,10 @@ def careful_pour():
 	rospy.sleep( 0.5 )
 	pouring_joint_positions2 = [0, 0, 0.523, -0.61, -1.047]#60
 	bot.arm.set_joint_positions( pouring_joint_positions2 )
-	rospy.sleep( 10 )
+	rospy.sleep( 2 )
 	pouring_joint_positions3 = [0, 0, 0.523, -0.61, -1.67]#95
 	bot.arm.set_joint_positions( pouring_joint_positions3 )
-	rospy.sleep( 10 )
+	rospy.sleep( 1.5 )
 	empty_the_cup_joint_positions = [0.15, -0.08, 0.45, -0.78, -2.35]
 	bot.arm.set_joint_positions( empty_the_cup_joint_positions )
 
